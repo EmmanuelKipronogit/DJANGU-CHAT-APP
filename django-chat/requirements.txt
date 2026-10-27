@@ -1,0 +1,8 @@
+Django>=5.1,<6
+channels>=4.1
+daphne>=4.1
+channels-redis>=4.2
+django-allauth[socialaccount]>=65
+psycopg[binary]>=3.2
+dj-database-url>=2.2
+whitenoise>=6.7

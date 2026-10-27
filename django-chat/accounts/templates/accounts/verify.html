@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Verify · Chat{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block body %}
+<main class="auth-card">
+  <h1>Check your email</h1>
+  <p class="muted">We sent a 6-digit code to <strong>{{ masked_email }}</strong>. Enter it below to finish signing in.</p>
+
+  {% if messages %}
+    <ul class="flash">{% for m in messages %}<li class="{{ m.tags }}">{{ m }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  <form method="post" class="stack">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    {{ form.code }}
+    {% for error in form.code.errors %}<p class="error">{{ error }}</p>{% endfor %}
+    {% for error in form.non_field_errors %}<p class="error">{{ error }}</p>{% endfor %}
+    <button type="submit" class="btn btn-primary">Verify</button>
+  </form>
+
+  <div class="row-between">
+    <form method="post" action="{% url 'accounts:resend' %}">
+      {% csrf_token %}
+      <button type="submit" class="link-btn" id="resend-btn" {% if resend_wait %}disabled data-wait="{{ resend_wait }}"{% endif %}>
+        Send a new code{% if resend_wait %} (<span id="resend-count">{{ resend_wait }}</span>s){% endif %}
+      </button>
+    </form>
+    <form method="post" action="{% url 'accounts:logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="link-btn">Use a different account</button>
+    </form>
+  </div>
+</main>
+<script>
+  (function () {
+    var btn = document.getElementById("resend-btn");
+    if (!btn || !btn.dataset.wait) return;
+    var left = parseInt(btn.dataset.wait, 10);
+    var counter = document.getElementById("resend-count");
+    var timer = setInterval(function () {
+      left -= 1;
+      if (left <= 0) {
+        clearInterval(timer);
+        btn.disabled = false;
+        btn.textContent = "Send a new code";
+      } else if (counter) {
+        counter.textContent = left;
+      }
+    }, 1000);
+  })();
+</script>
+{% endblock %}

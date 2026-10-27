@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Chat{% endblock %}
+{% block body_class %}app-page{% endblock %}
+{% block head %}<meta name="csrf-token" content="{{ csrf_token }}">{% endblock %}
+{% block body %}
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar">
+    <header class="sidebar-head">
+      <div>
+        <div class="me-name" id="me-name"></div>
+        <div class="conn" id="conn"><span class="dot"></span><span id="conn-text">Connecting…</span></div>
+      </div>
+      <div class="head-actions">
+        <button class="btn btn-primary btn-sm" id="new-chat-btn" type="button">New chat</button>
+        <form method="post" action="{% url 'accounts:logout' %}">
+          {% csrf_token %}
+          <button class="btn btn-ghost btn-sm" type="submit">Sign out</button>
+        </form>
+      </div>
+    </header>
+    <ul class="convo-list" id="convo-list"></ul>
+    <p class="empty-note" id="no-convos" hidden>No conversations yet. Start one with “New chat”.</p>
+  </aside>
+
+  <main class="thread" id="thread">
+    <div class="placeholder" id="placeholder">
+      <h2>Pick a conversation</h2>
+      <p class="muted">Or start a new direct message or group.</p>
+    </div>
+
+    <section class="room" id="room" hidden>
+      <header class="room-head">
+        <button class="btn btn-ghost btn-sm back-btn" id="back-btn" type="button" aria-label="Back to conversations">←</button>
+        <div class="room-title">
+          <h2 id="room-title"></h2>
+          <div class="muted small" id="room-sub"></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="add-people-btn" type="button" hidden>Add people</button>
+      </header>
+      <div class="messages" id="messages" aria-live="polite">
+        <button class="link-btn load-more" id="load-more" type="button" hidden>Load earlier messages</button>
+        <ol id="message-list"></ol>
+      </div>
+      <div class="typing small muted" id="typing" aria-live="polite"></div>
+      <form class="composer" id="composer" autocomplete="off">
+        <textarea id="input" rows="1" placeholder="Write a message…" aria-label="Message"></textarea>
+        <button class="btn btn-primary" type="submit" id="send-btn">Send</button>
+      </form>
+    </section>
+  </main>
+</div>
+
+<dialog id="new-dialog">
+  <form method="dialog" class="dialog-head">
+    <h3 id="dialog-title">New chat</h3>
+    <button class="btn btn-ghost btn-sm" aria-label="Close">✕</button>
+  </form>
+  <div class="tabs" id="dialog-tabs">
+    <button type="button" class="tab active" data-mode="direct">Direct message</button>
+    <button type="button" class="tab" data-mode="group">New group</button>
+  </div>
+  <div class="dialog-body">
+    <label id="group-name-wrap" hidden>
+      <span class="small muted">Group name</span>
+      <input type="text" id="group-name" maxlength="80" placeholder="e.g. Weekend plans">
+    </label>
+    <label>
+      <span class="small muted" id="search-label">Find a person by name or email</span>
+      <input type="search" id="user-search" placeholder="Type at least 3 characters" autocomplete="off">
+    </label>
+    <div class="chips" id="chips"></div>
+    <ul class="results" id="results"></ul>
+    <p class="error" id="dialog-error" hidden></p>
+  </div>
+  <div class="dialog-foot">
+    <button type="button" class="btn btn-primary" id="dialog-submit" hidden>Create</button>
+  </div>
+</dialog>
+
+{{ bootstrap|json_script:"bootstrap" }}
+<script src="{% static 'chat/chat.js' %}"></script>
+{% endblock %}
